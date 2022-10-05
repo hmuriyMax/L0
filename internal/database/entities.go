@@ -1,8 +1,9 @@
 package database
 
 const (
-	ClusterID = "test-cluster"
-	ChannelID = "id-channel"
+	ClusterID  = "test-cluster"
+	ChannelID  = "id-channel"
+	configPath = "./config/postgres.yaml"
 )
 
 type OrderDelivery struct {

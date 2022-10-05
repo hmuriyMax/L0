@@ -5,13 +5,22 @@ import (
 	"database/sql"
 	"fmt"
 	_ "github.com/lib/pq"
+	"gopkg.in/yaml.v2"
 	"log"
+	"os"
 	"sync"
 )
 
 const (
-	connection = "user=maxim password=fuck2022 port=5432 database=l0 sslmode=disable"
+	connection = "user=%s password=%s port=%s database=%s sslmode=disable"
 )
+
+type configStruct struct {
+	Name     string `yaml:"user"`
+	Password string `yaml:"password"`
+	Port     string `yaml:"port"`
+	Database string `yaml:"database"`
+}
 
 type DataBase struct {
 	pg    *sql.DB
@@ -29,8 +38,19 @@ func New(lg *log.Logger) *DataBase {
 }
 
 func (db *DataBase) Start() (err error) {
-	db.pg, err = sql.Open("postgres", connection)
-	if err != nil || db.pg.Ping() != nil {
+	var config configStruct
+	configBytes, err := os.ReadFile(configPath)
+	err = yaml.Unmarshal(configBytes, &config)
+	if err != nil {
+		return
+	}
+
+	db.pg, err = sql.Open("postgres",
+		fmt.Sprintf(connection, config.Name, config.Password, config.Port, config.Database))
+	if err != nil {
+		return
+	}
+	if err = db.pg.Ping(); err != nil {
 		return
 	}
 	db.wg.Add(1)
