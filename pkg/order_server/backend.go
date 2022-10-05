@@ -38,7 +38,7 @@ func (a *App) Stop() {
 	a.db.Stop()
 	_ = a.conn.Close()
 	_ = a.subs.Unsubscribe()
-
+	a.logger.Println("app stopped")
 }
 
 func (a *App) InitListener() (err error) {
@@ -48,21 +48,16 @@ func (a *App) InitListener() (err error) {
 		return err
 	}
 	go func() {
-		var (
-			cf  func()
-			ctx context.Context
-		)
 		for {
 			select {
 			case order, ok := <-newOrders:
 				if !ok {
 					return
 				}
-				ctx, _ = context.WithTimeout(a.ctx, time.Second*5)
+				ctx, _ := context.WithTimeout(a.ctx, time.Second*5)
 				a.db.Insert(ctx, order)
 			case <-a.ctx.Done():
 				a.logger.Printf("context is canceled. Finishing newOrders listener")
-				cf()
 				return
 			}
 		}

@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"github.com/hmuriyMax/L0/internal/database"
@@ -64,10 +65,9 @@ func main() {
 		Addr:    httpAddress,
 		Handler: mux,
 	}
-	defer func() { _ = srv.Close() }()
 	go func() {
 		err = srv.ListenAndServe()
-		if err != nil {
+		if err != nil && err != http.ErrServerClosed {
 			logger.Fatalln(err)
 		}
 	}()
@@ -75,18 +75,26 @@ func main() {
 	for {
 		var command string
 		_, err := fmt.Fscanln(os.Stdin, &command)
-		if command == "stop" || err != nil {
+		if err != nil {
+			logger.Fatal(err)
+		}
+		switch command {
+		case "stop":
+			_ = srv.Shutdown(context.Background())
 			return
-		} else if command == "cached" {
+		case "export":
 			err := backend.ExportCache(order_server.DefaultExportFile)
 			if err != nil {
 				logger.Println(err)
 			}
-		} else if command == "model" {
+		case "import":
 			err := order_server.InsertTest(backend)
 			if err != nil {
 				logger.Println(err)
 			}
+		default:
+			logger.Println("Unknown command:", command)
 		}
+
 	}
 }

@@ -4,7 +4,6 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"log"
 )
 
 func (db *DataBase) importToCache(ctx context.Context) {
@@ -32,7 +31,7 @@ func (db *DataBase) importToCache(ctx context.Context) {
 
 		db.cache.insert(tmp, db.lg)
 	}
-	log.Println("import finished successfully!")
+	db.lg.Println("import finished successfully!")
 }
 
 func (db *DataBase) insertInDB(ctx context.Context, order Order) error {

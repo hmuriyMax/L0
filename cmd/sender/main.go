@@ -57,7 +57,7 @@ func main() {
 		InternalSignature: randomString(rand.Intn(3)),
 		CustomerID:        randomString(rand.Intn(5) + 3),
 		DeliveryService:   randomString(10),
-		ShardKey:          randomString(rand.Intn(5) + 5),
+		ShardKey:          randomString(rand.Intn(5) + 3),
 		SmID:              rand.Intn(100),
 		DateCreated:       time.Now().Format(time.RFC3339),
 		OofShard:          randomString(1),
