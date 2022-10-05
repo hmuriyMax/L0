@@ -44,7 +44,7 @@ type OrderItem struct {
 	Sale        int    `json:"sale"`
 	Size        string `json:"size"`
 	TotalPrice  int    `json:"total_price"`
-	NmId        int64  `json:"nm_id"`
+	NmID        int64  `json:"nm_id"`
 	Brand       string `json:"brand"`
 	Status      int    `json:"status"`
 }
@@ -58,18 +58,18 @@ type Order struct {
 	Items             []OrderItem   `json:"items"`
 	Locale            string        `json:"locale"`
 	InternalSignature string        `json:"internal_signature"`
-	CustomerId        string        `json:"customer_id"`
+	CustomerID        string        `json:"customer_id"`
 	DeliveryService   string        `json:"delivery_service"`
-	Shardkey          string        `json:"shardkey"`
+	ShardKey          string        `json:"shardkey"`
 	SmID              int           `json:"sm_id"`
 	DateCreated       string        `json:"date_created"`
 	OofShard          string        `json:"oof_shard"`
 }
 
-func Run(orders chan Order) (stan.Conn, stan.Subscription) {
+func Run(orders chan Order) (stan.Conn, stan.Subscription, error) {
 	connect, err := stan.Connect(ClusterID, ClientID, stan.NatsURL(stan.DefaultNatsURL))
 	if err != nil {
-		log.Fatal(err)
+		return nil, nil, err
 	}
 	subs, err := connect.Subscribe(Channel, func(msg *stan.Msg) {
 		var order Order
@@ -82,7 +82,7 @@ func Run(orders chan Order) (stan.Conn, stan.Subscription) {
 		orders <- order
 	}, stan.StartWithLastReceived())
 	if err != nil {
-		log.Fatal(err)
+		return nil, nil, err
 	}
-	return connect, subs
+	return connect, subs, nil
 }

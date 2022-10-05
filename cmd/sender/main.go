@@ -28,8 +28,9 @@ func randomString(length int) string {
 
 func main() {
 	conn, err := stan.Connect(order_receiver.ClusterID,
-		order_receiver.ClientID,
-		stan.NatsURL(stan.DefaultNatsURL))
+		"order-client",
+		stan.NatsURL(stan.DefaultNatsURL),
+		stan.ConnectWait(time.Second*5))
 	if err != nil {
 		log.Fatalln(err)
 	}
@@ -54,9 +55,9 @@ func main() {
 		},
 		Locale:            randomString(2),
 		InternalSignature: randomString(rand.Intn(3)),
-		CustomerId:        randomString(rand.Intn(5) + 5),
+		CustomerID:        randomString(rand.Intn(5) + 3),
 		DeliveryService:   randomString(10),
-		Shardkey:          randomString(rand.Intn(5) + 5),
+		ShardKey:          randomString(rand.Intn(5) + 5),
 		SmID:              rand.Intn(100),
 		DateCreated:       time.Now().Format(time.RFC3339),
 		OofShard:          randomString(1),

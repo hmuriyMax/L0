@@ -26,7 +26,7 @@ func (db *DataBase) importToCache(ctx context.Context) {
 		)
 
 		err := rows.Scan(&tmp.OrderUid, &tmp.TrackNumber, &tmp.Entry, &delivery, &payment, &items,
-			&tmp.Locale, &tmp.InternalSignature, &tmp.CustomerId, &tmp.DeliveryService, &tmp.Shardkey,
+			&tmp.Locale, &tmp.InternalSignature, &tmp.CustomerID, &tmp.DeliveryService, &tmp.ShardKey,
 			&tmp.SmID, &tmp.DateCreated, &tmp.OofShard)
 		if err != nil {
 			db.lg.Println(err)
@@ -40,20 +40,30 @@ func (db *DataBase) importToCache(ctx context.Context) {
 	log.Println("import finished successfully!")
 }
 
-func (db *DataBase) insertInDB(ctx context.Context, order order_receiver.Order) {
-	delivery, _ := json.Marshal(order.Delivery)
-	payment, _ := json.Marshal(order.Payment)
-	items, _ := json.Marshal(order.Items)
+func (db *DataBase) insertInDB(ctx context.Context, order order_receiver.Order) error {
+	delivery, err := json.Marshal(order.Delivery)
+	if err != nil {
+		return err
+	}
+	payment, err := json.Marshal(order.Payment)
+	if err != nil {
+		return err
+	}
+	items, err := json.Marshal(order.Items)
+	if err != nil {
+		return err
+	}
 	command := fmt.Sprintf(""+"INSERT "+
 		"INTO orders (order_uid, track_number, "+
 		"entry, delivery, payment, items, locale, internal_signature, customer_id, "+
 		"delivery_service, shardkey, sm_id, date_created, oof_shard)"+
 		"VALUES ('%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%d', '%s', '%s')",
 		order.OrderUid, order.TrackNumber, order.Entry, delivery, payment, items,
-		order.Locale, order.InternalSignature, order.CustomerId, order.DeliveryService, order.Shardkey,
+		order.Locale, order.InternalSignature, order.CustomerID, order.DeliveryService, order.ShardKey,
 		order.SmID, order.DateCreated, order.OofShard)
-	_, err := db.pg.ExecContext(ctx, command)
+	_, err = db.pg.ExecContext(ctx, command)
 	if err != nil {
-		log.Println(err)
+		return err
 	}
+	return nil
 }

@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Id = {{.OrderUid}}</title>
+    <style>
+        body{
+            font-family: monospace;
+            font-size: 1em;
+        }
+        div{
+            padding-left: 30px;
+            margin: 3px;
+        }
+        div span:first-child {
+            display: inline;
+            font-weight: bold;
+        }
+        input{
+            display: inline;
+            margin: 0;
+            border: 10px solid black;
+        }
+        input:hover{
+            cursor: pointer;
+        }
+        input~*{
+            display: none;
+        }
+        input:checked~*{
+            display: block;
+        }
+    </style>
+</head>
+<body>
+    <h1>Результаты поиска по id = {{.OrderUid}}:</h1>
+    <div>
+        <span>OrderUid:</span>
+        <span>{{.OrderUid}}</span>
+    </div>
+    <div>
+        <span>TrackNumber:</span>
+        <span>{{.TrackNumber}}</span>
+    </div>
+    <div>
+        <span>Entry:</span>
+        <span>{{.Entry}}</span>
+    </div>
+    <div>
+        <span>Delivery:</span>
+        <input type="checkbox">
+        <div>
+            <span>Name:</span>
+            <span>{{.Delivery.Name}}</span>
+        </div>
+        <div>
+            <span>Phone:</span>
+            <span>{{.Delivery.Phone}}</span>
+        </div>
+        <div>
+            <span>Zip:</span>
+            <span>{{.Delivery.Zip}}</span>
+        </div>
+        <div>
+            <span>City:</span>
+            <span>{{.Delivery.City}}</span>
+        </div>
+        <div>
+            <span>Address:</span>
+            <span>{{.Delivery.Address}}</span>
+        </div>
+        <div>
+            <span>Region:</span>
+            <span>{{.Delivery.Region}}</span>
+        </div>
+        <div>
+            <span>Email:</span>
+            <span>{{.Delivery.Email}}</span>
+        </div>
+
+        <span>Payment:</span>
+        <input type="checkbox">
+        <div>
+            <span>Transaction:</span>
+            <span>{{.Payment.Transaction}}</span>
+        </div>
+        <div>
+            <span>RequestID:</span>
+            <span>{{.Payment.RequestID}}</span>
+        </div>
+        <div>
+            <span>Currency:</span>
+            <span>{{.Payment.Currency}}</span>
+        </div>
+        <div>
+            <span>Provider:</span>
+            <span>{{.Payment.Provider}}</span>
+        </div>
+        <div>
+            <span>Amount:</span>
+            <span>{{.Payment.Amount}}</span>
+        </div>
+        <div>
+            <span>PaymentDT:</span>
+            <span>{{.Payment.PaymentDT}}</span>
+        </div>
+        <div>
+            <span>Bank:</span>
+            <span>{{.Payment.Bank}}</span>
+        </div>
+        <div>
+            <span>DeliveryCost:</span>
+            <span>{{.Payment.DeliveryCost}}</span>
+        </div>
+        <div>
+            <span>GoodsTotal:</span>
+            <span>{{.Payment.GoodsTotal}}</span>
+        </div>
+        <div>
+            <span>CustomFee:</span>
+            <span>{{.Payment.CustomFee}}</span>
+        </div>
+    </div>
+    <div>
+        <span>Items:</span>
+        <input type="checkbox">
+        {{range .Items}}
+            <div>
+                <span>Item</span>
+<!--                <input type="checkbox">-->
+                <div>
+                    <span>ChartID:</span>
+                    <span>{{.ChartID}}</span>
+                </div>
+                <div>
+                    <span>TrackNumber:</span>
+                    <span>{{.TrackNumber}}</span>
+                </div>
+                <div>
+                    <span>Price:</span>
+                    <span>{{.Price}}</span>
+                </div>
+                <div>
+                    <span>RID:</span>
+                    <span>{{.RID}}</span>
+                </div>
+                <div>
+                    <span>Name:</span>
+                    <span>{{.Name}}</span>
+                </div>
+                <div>
+                    <span>Sale:</span>
+                    <span>{{.Sale}}</span>
+                </div>
+                <div>
+                    <span>Size:</span>
+                    <span>{{.Size}}</span>
+                </div>
+                <div>
+                    <span>TotalPrice:</span>
+                    <span>{{.TotalPrice}}</span>
+                </div>
+                <div>
+                    <span>NmID:</span>
+                    <span>{{.NmID}}</span>
+                </div>
+                <div>
+                    <span>Brand:</span>
+                    <span>{{.Brand}}</span>
+                </div>
+                <div>
+                    <span>Status:</span>
+                    <span>{{.Status}}</span>
+                </div>
+            </div>
+        {{end}}
+    </div>
+    <div>
+        <span>Locale:</span>
+        <span>{{.Locale}}</span>
+    </div>
+    <div>
+        <span>InternalSignature:</span>
+        <span>{{.InternalSignature}}</span>
+    </div>
+    <div>
+        <span>CustomerID:</span>
+        <span>{{.CustomerID}}</span>
+    </div>
+    <div>
+        <span>DeliveryService:</span>
+        <span>{{.DeliveryService}}</span>
+    </div>
+    <div>
+        <span>ShardKey:</span>
+        <span>{{.ShardKey}}</span>
+    </div>
+    <div>
+        <span>SmID:</span>
+        <span>{{.SmID}}</span>
+    </div>
+    <div>
+        <span>DateCreated:</span>
+        <span>{{.DateCreated}}</span>
+    </div>
+    <div>
+        <span>OofShard:</span>
+        <span>{{.OofShard}}</span>
+    </div>
+</body>
+</html>

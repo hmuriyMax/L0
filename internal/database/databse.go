@@ -51,13 +51,24 @@ func (db *DataBase) Insert(ctx context.Context, order order_receiver.Order) {
 	db.cache.insert(order, db.lg)
 	db.wg.Add(1)
 	go func() {
-		db.insertInDB(ctx, order)
-		db.wg.Done()
+		defer db.wg.Done()
+		err := db.insertInDB(ctx, order)
+		if err != nil {
+			db.cache.removeById(order.OrderUid, db.lg)
+		}
 	}()
 }
 
 func (db *DataBase) GetAll() []order_receiver.Order {
 	return db.cache.all()
+}
+
+func (db *DataBase) GetById(id string) (order_receiver.Order, error) {
+	ord, ok := db.cache.getById(id)
+	if !ok {
+		return order_receiver.Order{}, fmt.Errorf("no order with id '%s'", id)
+	}
+	return ord, nil
 }
 
 func (db *DataBase) Stop() {

@@ -30,3 +30,17 @@ func (c Cache) all() (res []order_receiver.Order) {
 	}
 	return
 }
+
+func (c Cache) getById(id string) (ord order_receiver.Order, ok bool) {
+	ord, ok = c[id]
+	return
+}
+
+func (c Cache) removeById(id string, lg *log.Logger) (ok bool) {
+	_, ok = c[id]
+	if !ok {
+		delete(c, id)
+	}
+	lg.Println("removed id: ", id)
+	return
+}
