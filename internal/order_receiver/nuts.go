@@ -7,9 +7,9 @@ import (
 )
 
 const (
-	clusterID = "test-cluster"
-	clientID  = "order-service"
-	channel   = "id-channel"
+	ClusterID = "test-cluster"
+	ClientID  = "order-service"
+	Channel   = "id-channel"
 )
 
 type OrderDelivery struct {
@@ -66,20 +66,23 @@ type Order struct {
 	OofShard          string        `json:"oof_shard"`
 }
 
-func Run() {
-	connect, err := stan.Connect(clusterID, clientID, stan.NatsURL(stan.DefaultNatsURL))
+func Run(orders chan Order) (stan.Conn, stan.Subscription) {
+	connect, err := stan.Connect(ClusterID, ClientID, stan.NatsURL(stan.DefaultNatsURL))
 	if err != nil {
 		log.Fatal(err)
 	}
-	_, err = connect.Subscribe(channel, func(msg *stan.Msg) {
+	subs, err := connect.Subscribe(Channel, func(msg *stan.Msg) {
 		var order Order
-		err := json.Unmarshal(msg.Data, &order)
+		log.Printf("received message from: %s", msg.Subject)
+		err = json.Unmarshal(msg.Data, &order)
 		if err != nil {
-			log.Print(err)
+			log.Println(err)
+			return
 		}
-		//SaveData(order)
-	})
+		orders <- order
+	}, stan.StartWithLastReceived())
 	if err != nil {
-		return
+		log.Fatal(err)
 	}
+	return connect, subs
 }

@@ -2,7 +2,7 @@ package database
 
 import (
 	"fmt"
-	"github.com/hmuriyMax/L0/cmd/internal/order_receiver"
+	"github.com/hmuriyMax/L0/internal/order_receiver"
 	"log"
 )
 
