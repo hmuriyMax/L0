@@ -1,15 +1,8 @@
-package order_receiver
-
-import (
-	"encoding/json"
-	"github.com/nats-io/stan.go"
-	"log"
-)
+package database
 
 const (
 	ClusterID = "test-cluster"
-	ClientID  = "order-service"
-	Channel   = "id-channel"
+	ChannelID = "id-channel"
 )
 
 type OrderDelivery struct {
@@ -64,25 +57,4 @@ type Order struct {
 	SmID              int           `json:"sm_id"`
 	DateCreated       string        `json:"date_created"`
 	OofShard          string        `json:"oof_shard"`
-}
-
-func Run(orders chan Order) (stan.Conn, stan.Subscription, error) {
-	connect, err := stan.Connect(ClusterID, ClientID, stan.NatsURL(stan.DefaultNatsURL))
-	if err != nil {
-		return nil, nil, err
-	}
-	subs, err := connect.Subscribe(Channel, func(msg *stan.Msg) {
-		var order Order
-		log.Printf("received message from: %s", msg.Subject)
-		err = json.Unmarshal(msg.Data, &order)
-		if err != nil {
-			log.Println(err)
-			return
-		}
-		orders <- order
-	}, stan.StartWithLastReceived())
-	if err != nil {
-		return nil, nil, err
-	}
-	return connect, subs, nil
 }

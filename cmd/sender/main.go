@@ -2,14 +2,14 @@ package main
 
 import (
 	"encoding/json"
-	"github.com/hmuriyMax/L0/internal/order_receiver"
+	"github.com/hmuriyMax/L0/internal/database"
 	"github.com/nats-io/stan.go"
 	"log"
 	"math/rand"
 	"time"
 )
 
-func GetJSON(order order_receiver.Order) (bytes []byte) {
+func GetJSON(order database.Order) (bytes []byte) {
 	bytes, err := json.Marshal(order)
 	if err != nil {
 		log.Fatal(err)
@@ -27,7 +27,7 @@ func randomString(length int) string {
 }
 
 func main() {
-	conn, err := stan.Connect(order_receiver.ClusterID,
+	conn, err := stan.Connect(database.ClusterID,
 		"order-client",
 		stan.NatsURL(stan.DefaultNatsURL),
 		stan.ConnectWait(time.Second*5))
@@ -36,18 +36,18 @@ func main() {
 	}
 	defer func() { _ = conn.Close() }()
 
-	message := GetJSON(order_receiver.Order{
+	message := GetJSON(database.Order{
 		OrderUid:    randomString(rand.Intn(5) + 5),
 		TrackNumber: randomString(rand.Intn(5) + 5),
 		Entry:       randomString(4),
-		Delivery: order_receiver.OrderDelivery{
+		Delivery: database.OrderDelivery{
 			Name:  randomString(10),
 			Phone: randomString(10),
 		},
-		Payment: order_receiver.OrderPayment{
+		Payment: database.OrderPayment{
 			Transaction: randomString(rand.Intn(5) + 5),
 		},
-		Items: []order_receiver.OrderItem{
+		Items: []database.OrderItem{
 			{
 				ChartID:     rand.Int63(),
 				TrackNumber: randomString(rand.Intn(5) + 5),
@@ -63,9 +63,9 @@ func main() {
 		OofShard:          randomString(1),
 	})
 
-	err = conn.Publish(order_receiver.Channel, message)
+	err = conn.Publish(database.ChannelID, message)
 	if err != nil {
 		log.Fatal(err)
 	}
-	log.Println("Published message on channel: " + order_receiver.Channel)
+	log.Println("Published message on channel: " + database.ChannelID)
 }

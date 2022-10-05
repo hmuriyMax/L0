@@ -4,22 +4,17 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"github.com/hmuriyMax/L0/internal/order_receiver"
 	"log"
 )
 
 func (db *DataBase) importToCache(ctx context.Context) {
-	//for i := 0; i < 60; i++ {
-	//	fmt.Println(i)
-	//	time.Sleep(time.Second)
-	//}
 	rows, err := db.pg.QueryContext(ctx, "SELECT * FROM orders")
 	if err != nil {
 		db.lg.Println(err)
 	}
 	for rows.Next() {
 		var (
-			tmp      order_receiver.Order
+			tmp      Order
 			delivery []byte
 			payment  []byte
 			items    []byte
@@ -40,7 +35,7 @@ func (db *DataBase) importToCache(ctx context.Context) {
 	log.Println("import finished successfully!")
 }
 
-func (db *DataBase) insertInDB(ctx context.Context, order order_receiver.Order) error {
+func (db *DataBase) insertInDB(ctx context.Context, order Order) error {
 	delivery, err := json.Marshal(order.Delivery)
 	if err != nil {
 		return err
@@ -65,5 +60,6 @@ func (db *DataBase) insertInDB(ctx context.Context, order order_receiver.Order) 
 	if err != nil {
 		return err
 	}
+	db.lg.Printf("value %s inserted into DB", order.OrderUid)
 	return nil
 }

@@ -4,7 +4,6 @@ import (
 	"context"
 	"database/sql"
 	"fmt"
-	"github.com/hmuriyMax/L0/internal/order_receiver"
 	_ "github.com/lib/pq"
 	"log"
 	"sync"
@@ -25,7 +24,7 @@ func New(lg *log.Logger) *DataBase {
 	var d DataBase
 	d.lg = lg
 	d.wg = sync.WaitGroup{}
-	d.cache = make(map[string]order_receiver.Order)
+	d.cache = make(map[string]Order)
 	return &d
 }
 
@@ -43,7 +42,7 @@ func (db *DataBase) Start() (err error) {
 	return
 }
 
-func (db *DataBase) Insert(ctx context.Context, order order_receiver.Order) {
+func (db *DataBase) Insert(ctx context.Context, order Order) {
 	if db.cache.checkIn(order) {
 		db.lg.Println(fmt.Errorf("order '%s' already exists", order.OrderUid))
 		return
@@ -54,19 +53,20 @@ func (db *DataBase) Insert(ctx context.Context, order order_receiver.Order) {
 		defer db.wg.Done()
 		err := db.insertInDB(ctx, order)
 		if err != nil {
+			db.lg.Println(err)
 			db.cache.removeById(order.OrderUid, db.lg)
 		}
 	}()
 }
 
-func (db *DataBase) GetAll() []order_receiver.Order {
+func (db *DataBase) GetAll() []Order {
 	return db.cache.all()
 }
 
-func (db *DataBase) GetById(id string) (order_receiver.Order, error) {
+func (db *DataBase) GetById(id string) (Order, error) {
 	ord, ok := db.cache.getById(id)
 	if !ok {
-		return order_receiver.Order{}, fmt.Errorf("no order with id '%s'", id)
+		return Order{}, fmt.Errorf("no order with id '%s'", id)
 	}
 	return ord, nil
 }

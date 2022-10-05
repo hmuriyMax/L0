@@ -3,8 +3,8 @@ package main
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/hmuriyMax/L0/cmd/back"
-	"github.com/hmuriyMax/L0/internal/order_receiver"
+	"github.com/hmuriyMax/L0/internal/database"
+	"github.com/hmuriyMax/L0/pkg/order_server"
 	"html/template"
 	"log"
 	"net/http"
@@ -13,11 +13,11 @@ import (
 
 const (
 	httpAddress = ":8080"
-	HTMLPath    = "./cmd/httpserver/html/"
+	HTMLPath    = "./web/template/"
 )
 
 var (
-	backend = back.App{}
+	backend = order_server.App{}
 )
 
 func indexHandler(w http.ResponseWriter, r *http.Request) {
@@ -28,7 +28,7 @@ func indexHandler(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
-	var anm order_receiver.Order
+	var anm database.Order
 	err = json.Unmarshal(bytes, &anm)
 	if err != nil {
 		log.Println(err)
@@ -47,7 +47,8 @@ func indexHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func main() {
-	err := backend.Start(log.Default())
+	logger := log.New(os.Stdout, "", log.Ldate|log.Lmicroseconds)
+	err := backend.Start(logger)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -67,19 +68,24 @@ func main() {
 	go func() {
 		err = srv.ListenAndServe()
 		if err != nil {
-			log.Fatalln(err)
+			logger.Fatalln(err)
 		}
 	}()
-	log.Printf("server listening on http://%s\n", srv.Addr)
+	logger.Printf("server listening on http://%s\n", srv.Addr)
 	for {
 		var command string
 		_, err := fmt.Fscanln(os.Stdin, &command)
 		if command == "stop" || err != nil {
 			return
 		} else if command == "cached" {
-			err := backend.ExportCached(back.DefaultExportFile)
+			err := backend.ExportCache(order_server.DefaultExportFile)
 			if err != nil {
-				log.Println(err)
+				logger.Println(err)
+			}
+		} else if command == "model" {
+			err := order_server.InsertTest(backend)
+			if err != nil {
+				logger.Println(err)
 			}
 		}
 	}

@@ -2,15 +2,14 @@ package database
 
 import (
 	"fmt"
-	"github.com/hmuriyMax/L0/internal/order_receiver"
 	"log"
 )
 
-type Cache map[string]order_receiver.Order
+type Cache map[string]Order
 
 func (c Cache) len() int { return len(c) }
 
-func (c Cache) insert(order order_receiver.Order, lg *log.Logger) {
+func (c Cache) insert(order Order, lg *log.Logger) {
 	if c.checkIn(order) {
 		lg.Println(fmt.Errorf("order '%s' already exists in cache", order.OrderUid))
 		return
@@ -19,19 +18,19 @@ func (c Cache) insert(order order_receiver.Order, lg *log.Logger) {
 	lg.Printf("value %s cashed", order.OrderUid)
 }
 
-func (c Cache) checkIn(order order_receiver.Order) bool {
+func (c Cache) checkIn(order Order) bool {
 	_, ok := c[order.OrderUid]
 	return ok
 }
 
-func (c Cache) all() (res []order_receiver.Order) {
+func (c Cache) all() (res []Order) {
 	for _, val := range c {
 		res = append(res, val)
 	}
 	return
 }
 
-func (c Cache) getById(id string) (ord order_receiver.Order, ok bool) {
+func (c Cache) getById(id string) (ord Order, ok bool) {
 	ord, ok = c[id]
 	return
 }
@@ -41,6 +40,6 @@ func (c Cache) removeById(id string, lg *log.Logger) (ok bool) {
 	if !ok {
 		delete(c, id)
 	}
-	lg.Println("removed id: ", id)
+	lg.Println("removed id:", id)
 	return
 }
