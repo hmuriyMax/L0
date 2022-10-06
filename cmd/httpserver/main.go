@@ -23,6 +23,15 @@ var (
 
 func indexHandler(w http.ResponseWriter, r *http.Request) {
 	id := r.URL.Query().Get("id")
+	if id == "" {
+		pageTemplate := template.Must(template.ParseFiles(HTMLPath + "form.html"))
+		err := pageTemplate.Execute(w, nil)
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+		return
+	}
 	bytes, err := backend.GetById(id)
 	if err != nil {
 		log.Println(err)
@@ -37,9 +46,9 @@ func indexHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	pageTemlate := template.Must(template.ParseFiles(HTMLPath + "index.html"))
+	pageTemplate := template.Must(template.ParseFiles(HTMLPath + "index.html"))
 
-	err = pageTemlate.Execute(w, anm)
+	err = pageTemplate.Execute(w, anm)
 	if err != nil {
 		log.Println(err)
 		http.Error(w, err.Error(), http.StatusInternalServerError)
@@ -51,11 +60,11 @@ func main() {
 	logger := log.New(os.Stdout, "", log.Ldate|log.Lmicroseconds)
 	err := backend.Start(logger)
 	if err != nil {
-		log.Fatal(err)
+		logger.Fatal(err)
 	}
 	err = backend.InitListener()
 	if err != nil {
-		log.Fatal(err)
+		logger.Fatal(err)
 	}
 	defer backend.Stop()
 
