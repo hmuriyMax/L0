@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"github.com/hmuriyMax/L0/internal/database"
 	"github.com/hmuriyMax/L0/pkg/order_server"
+	"github.com/hmuriyMax/L0/pkg/random_order"
 	"html/template"
 	"log"
 	"net/http"
@@ -19,6 +20,7 @@ const (
 
 var (
 	backend = order_server.App{}
+	logger  *log.Logger
 )
 
 func indexHandler(w http.ResponseWriter, r *http.Request) {
@@ -56,8 +58,17 @@ func indexHandler(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+func SendHandler(w http.ResponseWriter, r *http.Request) {
+	err := random_order.SendRandomOrder(logger)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	http.Redirect(w, r, "/", http.StatusFound)
+}
+
 func main() {
-	logger := log.New(os.Stdout, "", log.Ldate|log.Lmicroseconds)
+	logger = log.New(os.Stdout, "", log.Ldate|log.Lmicroseconds)
 	err := backend.Start(logger)
 	if err != nil {
 		logger.Fatal(err)
@@ -69,7 +80,10 @@ func main() {
 	defer backend.Stop()
 
 	mux := http.NewServeMux()
+
 	mux.HandleFunc("/", indexHandler)
+	mux.HandleFunc("/add_random", SendHandler)
+
 	srv := &http.Server{
 		Addr:    httpAddress,
 		Handler: mux,
